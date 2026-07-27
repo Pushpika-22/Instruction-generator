@@ -29,13 +29,9 @@ The system works by:
 - Product documentation teams
 - QA and testing teams
 - SaaS onboarding documentation
-- Internal process documentation
+- Internal process documentation in this file
 - Automated knowledge base creation
 
 ---
 
-## Contributors
-
-- Pavithra Suresh
-- 
 
