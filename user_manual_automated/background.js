@@ -259,11 +259,20 @@ function startKeepAlive() {
   console.log("🔄 Keep-alive started");
 }
 
+// function stopKeepAlive() {
+//   if (keepAliveInterval) {
+//     clearInterval(keepAliveInterval);
+//     keepAliveInterval = null;
+//     console.log("⏸️ Keep-alive stopped");
+//   }
+// }
 function stopKeepAlive() {
   if (keepAliveInterval) {
     clearInterval(keepAliveInterval);
     keepAliveInterval = null;
     console.log("⏸️ Keep-alive stopped");
+  } else {
+    console.log("ℹ️ Keep-alive is already stopped");
   }
 }
 
