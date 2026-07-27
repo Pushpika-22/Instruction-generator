@@ -88,28 +88,63 @@ async function startRecording() {
   
   // Make sure content script is injected in active tab
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab && !tab.url?.startsWith('chrome://') && !tab.url?.startsWith('chrome-extension://')) {
-      console.log('💉 Ensuring content script is injected in tab:', tab.id);
-      
-      // Try to ping the content script first
-      try {
-        await chrome.tabs.sendMessage(tab.id, { type: 'PING' });
-        console.log('✅ Content script already active');
-      } catch (error) {
-        // Content script not loaded, inject it
-        console.log('⚠️ Content script not found, injecting...');
-        await chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ['content.js']
-        });
-        console.log('✅ Content script injected');
-        
-        // Wait a moment for it to initialize
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-    }
-  } catch (error) {
+  // Get the currently active tab
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  });
+
+  if (!tab?.id) {
+    console.warn("⚠️ No active tab found.");
+    return;
+  }
+
+  // Skip browser internal pages
+  const restrictedProtocols = [
+    "chrome://",
+    "chrome-extension://",
+    "edge://",
+    "about:"
+  ];
+
+  if (restrictedProtocols.some(protocol => tab.url?.startsWith(protocol))) {
+    console.warn("🚫 Cannot inject into browser internal pages.");
+    return;
+  }
+
+  console.log(`📄 Active Tab: ${tab.id}`);
+  console.log("🔍 Checking content script...");
+
+  try {
+    // Check whether the content script is already running
+    await chrome.tabs.sendMessage(tab.id, {
+      type: "PING"
+    });
+
+    console.log("✅ Content script is already active.");
+
+  } catch {
+    console.log("⚠️ Content script not detected.");
+    console.log("💉 Injecting content.js...");
+
+    await chrome.scripting.executeScript({
+      target: {
+        tabId: tab.id
+      },
+      files: ["content.js"]
+    });
+
+    console.log("✅ content.js injected successfully.");
+
+    // Allow the script to initialise
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    console.log("🚀 Content script is ready.");
+  }
+
+} catch (error) {
+  console.error("❌ Failed to initialise content script:", error);
+} catch (error) {
     console.error('❌ Failed to inject content script:', error);
   }
   
