@@ -7,16 +7,26 @@
  * Uses crypto.randomUUID() if available, otherwise falls back
  * @returns {string}
  */
+// export function generateEventId() {
+//   if (typeof crypto !== "undefined" && crypto.randomUUID) {
+//     return crypto.randomUUID();
+//   }
+
+//   const timestamp = Date.now();
+//   const random = Math.random().toString(36).substring(2, 15);
+//   return `event_${timestamp}_${random}`;
+// }
 export function generateEventId() {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
   }
 
   const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 15);
-  return `event_${timestamp}_${random}`;
-}
+  const randomArray = new Uint32Array(2);
+  crypto.getRandomValues(randomArray);
 
+  return `event_${timestamp}_${randomArray.join("_")}`;
+}
 /**
  * Extracts a human-readable label from a DOM element
  * @param {HTMLElement} element
